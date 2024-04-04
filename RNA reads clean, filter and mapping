@@ -1,0 +1,40 @@
+#In QMUL apocrita
+
+#!/bin/sh
+#$ -cwd
+#$ -j y
+#$ -pe smp 1
+#$ -l h_rt=24:0:0
+#$ -l h_vmem=10G
+
+###Illumina RNA sequences cleaning and filtering
+module load 
+
+###Mapping the RNA sequencing data to 
+INPUT1=LK2_G1_ATTCCT_L005_R1_001.fastq.gz
+INPUT2=LK2_G1_ATTCCT_L005_R2_001.fastq.gz
+module load bowtie2
+module load samtools
+
+#clean and filter the reads with trimgalore
+module load trimgalore
+trim_galore ${INPUT1} ${INPUT2} --paired --fastqc  
+
+#make reference genome index with bowtie2
+bowtie2-build genome_sequence.fasta ref_genome
+#map the clean and trimmed reads to reference genome ref_genome, and save it as bam file
+bowtie2  -q -x ref_genome -1 trimmed_${INPUT1}_paired.fastq -2 trimmed_${INPUT2}_paired.fastq|samtools view -bS -> allrepeats_fimp_align.bam
+
+#samtools filter out the unmapped reads
+samtools view -h -F 4 -b allrepeats_fimp_align2.bam > mappedallrepeats_fimp_align2.bam
+samtools sort mappedallrepeats_fimp_align2.bam -o mappedallrepeats_fimp_align2_sorted.bam
+samtools view mappedallrepeats_fimp_align2_sorted.bam|cut -f1,3 > mappedallrepeats_fimp_align2_sorted_cut.txt
+
+#Loop the reads number for each cluster and save it in a file.txt, and saved in an excel table later.
+for i in {1..404}
+do
+  grep "CL${i}Contig" mappedallrepeats_fimp_align2_sorted_cut.txt | wc -l >> file.txt
+ done
+
+
+
