@@ -25,14 +25,14 @@ bowtie2-build genome_sequence.fasta ref_genome
 bowtie2  -q -x ref_genome -1 trimmed_${INPUT1}_paired.fastq -2 trimmed_${INPUT2}_paired.fastq|samtools view -bS -> allrepeats_fimp_align.bam
 
 #samtools filter out the unmapped reads
-samtools view -h -F 4 -b allrepeats_fimp_align2.bam > mappedallrepeats_fimp_align2.bam
-samtools sort mappedallrepeats_fimp_align2.bam -o mappedallrepeats_fimp_align2_sorted.bam
-samtools view mappedallrepeats_fimp_align2_sorted.bam|cut -f1,3 > mappedallrepeats_fimp_align2_sorted_cut.txt
+samtools view -h -F 4 -b allrepeats_fimp_align.bam > mappedallrepeats_fimp_align.bam
+samtools sort mappedallrepeats_fimp_align.bam -o mappedallrepeats_fimp_align_sorted.bam
+samtools view mappedallrepeats_fimp_align_sorted.bam|cut -f1,3 > mappedallrepeats_fimp_align_sorted_cut.txt
 
 #Loop the reads number for each cluster and save it in a file.txt, and saved in an excel table later.
 for i in {1..404}
 do
-  grep "CL${i}Contig" mappedallrepeats_fimp_align2_sorted_cut.txt | wc -l >> file.txt
+  grep "CL${i}Contig" mappedallrepeats_fimp_align_sorted_cut.txt | wc -l >> file.txt
  done
 
 
