@@ -8,7 +8,6 @@
 #$ -l h_vmem=10G
 
 ###Illumina RNA sequences cleaning and filtering
-module load 
 
 ###Mapping the RNA sequencing data to 
 INPUT1=LK2_G1_ATTCCT_L005_R1_001.fastq.gz
