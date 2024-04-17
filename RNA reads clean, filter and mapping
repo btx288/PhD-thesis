@@ -12,17 +12,18 @@
 ###Mapping the RNA sequencing data to 
 INPUT1=LK2_G1_ATTCCT_L005_R1_001.fastq.gz
 INPUT2=LK2_G1_ATTCCT_L005_R2_001.fastq.gz
+MINlENGTH=100
 module load bowtie2
 module load samtools
 
-#clean and filter the reads with trimgalore
-module load trimgalore
-trim_galore ${INPUT1} ${INPUT2} --paired --fastqc  
+#trimmomatic length filtering
+module load java
+java -jar /data/home/btx288/programme/Trimmomatic-0.39/trimmomatic-0.39.jar PE $INPUT1 $INPUT2 trimmed${INPUT1}_paired.fastq trimmed${INPUT1}_unpaired.fastq trimmed${INPUT2}_paired.fastq trimmed${INPUT2}_paired.fastq ILLUMINACLIP:/data/home/btx288/programme/Trimmomatic-0.39/adapters/TruSeq3-PE.fa:2:30:10:2:keepBothReads LEADING:3 TRAILING:3 MINLEN:$MINlENGTH HEADCROP:0
 
 #make reference genome index with bowtie2
 bowtie2-build genome_sequence.fasta ref_genome
 #map the clean and trimmed reads to reference genome ref_genome, and save it as bam file
-bowtie2  -q -x ref_genome -1 trimmed_${INPUT1}_paired.fastq -2 trimmed_${INPUT2}_paired.fastq|samtools view -bS -> allrepeats_fimp_align.bam
+bowtie2  -q -x ref_genome -1 trimmed${INPUT1}_paired.fastq -2 trimmed${INPUT2}_paired.fastq|samtools view -bS -> allrepeats_fimp_align.bam
 
 #samtools filter out the unmapped reads
 samtools view -h -F 4 -b allrepeats_fimp_align.bam > mappedallrepeats_fimp_align.bam
